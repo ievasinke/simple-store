@@ -1,0 +1,29 @@
+{
+  "Products": [
+    {
+      "name": "Grapes",
+      "price": 420,
+      "amount": 90
+    },
+    {
+      "name": "Apples",
+      "price": 130,
+      "amount": 110
+    },
+    {
+      "name": "Tomatoes",
+      "price": 360,
+      "amount": 70
+    },
+    {
+      "name": "Cookies",
+      "price": 1140,
+      "amount": 85
+    },
+    {
+      "name": "Milk",
+      "price": 330,
+      "amount": 42
+    }
+  ]
+}
