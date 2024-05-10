@@ -31,11 +31,18 @@ function createProduct(string $name, int $price, int $amount): stdClass
 function displayProducts()
 {
     global $productsList;
+
+    if (empty($productsList)) {
+        echo "No products are currently available.\n";
+        return;
+    }
+    
     echo "Today we offer:\n";
-    foreach ($productsList as $key => $product) {
+    foreach ($productsList as $index => $product) {
         $price = number_format($product->price / 100, 2);
         $name = strtoupper($product->name);
-        echo $key + 1 . ". {$name} for {$price} euro(s).\n";
+        $indexNumber = $index + 1;
+        echo "$indexNumber. $name for $price euro(s).\n";
     }
 }
 
@@ -112,10 +119,9 @@ function displayCart()
 
     $totalSum = 0;
     echo "You have in the cart:\n";
-
     foreach ($selectedProducts as $productName => $selectedAmount) {
         if (!isset($productMap[$productName])) {
-            echo "Product '$productName' not found in the product list.\n";
+            echo "Product $productName not found in the product list.\n";
             continue;
         }
 
@@ -126,10 +132,9 @@ function displayCart()
         $fillLength = $lineLength - strlen($productName) - strlen($productTotalCost);
         $fillLength = max($fillLength, 0);
         echo "$productName "
-            . "(qtt: {$selectedAmount})"
+            . "(Qty: $selectedAmount)"
             . str_repeat("_", $fillLength)
-            . " $productTotalCost "
-            . "euro(s)\n";
+            . " $productTotalCost euro(s)\n";
     }
     echo "Total of the cart is: "
         . str_repeat(" ", 16)
@@ -141,7 +146,7 @@ function checkOut()
 {
     $askEmail = strtolower((string)readline("Enter your email to receive a receipt: "));
     if (filter_var($askEmail, FILTER_VALIDATE_EMAIL)) {
-        echo "Receipt sent to {$askEmail}. Thank you for shopping at the Simple Store!\n";
+        echo "Receipt sent to $askEmail. Thank you for shopping at the Simple Store!\n";
     } else {
         echo "Purchase denied. Come back Later!\n";
     }
