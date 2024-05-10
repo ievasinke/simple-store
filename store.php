@@ -14,7 +14,7 @@
  */
 
 $json = file_get_contents('products.json');
-$json_data = json_decode($json, true);
+$jsonData = json_decode($json);
 
 $productsList = [];
 $selectedProducts = [];
@@ -28,15 +28,13 @@ function createProduct(string $name, int $price, int $amount): stdClass
     return $product;
 }
 
-function displayProducts()
+function displayProducts(array $productsList): void
 {
-    global $productsList;
-
     if (empty($productsList)) {
         echo "No products are currently available.\n";
         return;
     }
-    
+
     echo "Today we offer:\n";
     foreach ($productsList as $index => $product) {
         $price = number_format($product->price / 100, 2);
@@ -46,17 +44,14 @@ function displayProducts()
     }
 }
 
-function selectProduct()
+function selectProduct(array $productsList, array $selectedProducts): void
 {
-    global $productsList;
-    global $selectedProducts;
-
     $select = (int)readline("Enter the number from the list to select an item: ");
     $productFound = false;
 
     if ($select > 0 && $select <= count($productsList)) {
         $product = $productsList[$select - 1];
-        $amount = (int)readline("Enter amount of {$product->name}: ");
+        $amount = (int)readline("Enter amount of $product->name: ");
         if ($amount > $product->amount) {
             echo "We are out of {$product->name}.\n";
         } elseif ($amount > 0) {
@@ -71,43 +66,40 @@ function selectProduct()
         } else {
             echo "Invalid amount. Please enter a positive number.\n";
         }
-        askYesNo();
+        askYesNo($productsList, $selectedProducts);
     } else {
         echo "Invalid product selection.\n";
     }
     if (!$productFound) {
-        askYesNo();
+        askYesNo($productsList, $selectedProducts);
     }
 }
 
-function askYesNo()
+function askYesNo(array $productsList, array $selectedProducts): void
 {
     $askAgain = strtolower((string)readline("Do you want to continue shopping? Press y/n: "));
     if ($askAgain === 'y' || $askAgain === 'yes') {
-        displayProducts();
-        selectProduct();
+        displayProducts($productsList);
+        selectProduct($productsList, $selectedProducts);
     } elseif ($askAgain === 'n' || $askAgain === 'no') {
-        displayCart();
+        displayCart($productsList, $selectedProducts);
         $askCheckOut = strtolower((string)readline("Do you want to checkout? Press y/n: "));
         if ($askCheckOut === 'y' || $askCheckOut === 'yes') {
             checkOut();
         } elseif ($askCheckOut === 'n' || $askCheckOut === 'no') {
-            displayProducts();
-            selectProduct();
+            displayProducts($productsList);
+            selectProduct($productsList, $selectedProducts);
         } else {
-            askYesNo();
+            askYesNo($productsList, $selectedProducts);
         }
     } else {
-        displayCart();
-        askYesNo();
+        displayCart($productsList, $selectedProducts);
+        askYesNo($productsList, $selectedProducts);
     }
 }
 
-function displayCart()
+function displayCart(array $productsList, array $selectedProducts): void
 {
-    global $productsList;
-    global $selectedProducts;
-
     if (empty($selectedProducts)) {
         echo "Your cart is empty.\n";
         exit;
@@ -142,7 +134,7 @@ function displayCart()
         . " euro(s)\n";
 }
 
-function checkOut()
+function checkOut(): void
 {
     $askEmail = strtolower((string)readline("Enter your email to receive a receipt: "));
     if (filter_var($askEmail, FILTER_VALIDATE_EMAIL)) {
@@ -153,12 +145,13 @@ function checkOut()
     exit;
 }
 
-foreach ($json_data as $items) {
+foreach ($jsonData as $items) {
+
     foreach ($items as $item) {
-        $productsList[] = createProduct($item['name'], $item['price'], $item['amount']);
+        $productsList[] = createProduct($item->name, $item->price, $item->amount);
     };
 }
 
 echo "Welcome to the Simple Store!\n";
-displayProducts();
-selectProduct();
+displayProducts($productsList);
+selectProduct($productsList, $selectedProducts);
